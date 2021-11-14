@@ -20,20 +20,16 @@ const refs = {
 };
 const { searchBox, countryList, countryInfo } = refs;
 
-searchBox.addEventListener('input', debounce(search, DEBOUNCE_DELAY));
+searchBox.addEventListener('input', debounce(runSearch, DEBOUNCE_DELAY));
 
-function addParametersToFilter() {
-  return filteredParameters.join();
-}
-
-function search() {
+function runSearch() {
   let searchText = searchBox.value.trim();
 
   if (!searchText) {
-    return;
+    return clearUi();
   }
 
-  fetchCountries(searchText, addParametersToFilter())
+  fetchCountries(searchText, filteredParameters.join())
     .then(countries => addSearchResultMarkup(countries))
     .catch(() => {
       clearUi();
@@ -66,8 +62,10 @@ function addSearchResultMarkup(countries) {
 function createCountryListMarkup(countries) {
   return countries
     .map(country => {
+      const { flags, name } = country;
+
       return `<li>
-      <img src="${country.flags.svg}" width="50px" height="30px"</img><span>${country.name.official}</span>
+      <img src="${flags.svg}" width="50px" height="30px"</img><span>${name.official}</span>
       </li>`;
     })
     .join('');
@@ -76,11 +74,12 @@ function createCountryListMarkup(countries) {
 function createCountryInfoMarkup(countries) {
   return countries
     .map(country => {
-      const languageList = Object.values(country.languages).join(', ');
+      const { languages, flags, name, capital, population } = country;
+      const languageList = Object.values(languages).join(', ');
 
-      return `<img src="${country.flags.svg}" width="50px" height="30px"</img><h1><b>${country.name.official}</b></h1>
-        <p><b>Capital</b>: ${country.capital}</p>
-        <p><b>Population</b>: ${country.population}</p>
+      return `<img src="${flags.svg}" width="50px" height="30px"</img><h1><b>${name.official}</b></h1>
+        <p><b>Capital</b>: ${capital}</p>
+        <p><b>Population</b>: ${population}</p>
         <p><b>Language</b>: ${languageList}</p>`;
     })
     .join('');
