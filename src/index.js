@@ -36,9 +36,8 @@ function runSearch() {
         return Notiflix.Notify.info(
           'Too many matches found. Please enter a more specific name.',
         );
-      } else {
-        return addSearchResultMarkup(countries);
       }
+      return addSearchResultMarkup(countries);
     })
     .catch(() => {
       clearUi();
@@ -52,7 +51,12 @@ function clearUi() {
 }
 
 function addSearchResultMarkup(countries) {
-  return (countryList.innerHTML = createMarkup(countries));
+  clearUi();
+
+  if (countries.length > 1) {
+    return (countryList.innerHTML = createMarkup(countries));
+  }
+  return (countryInfo.innerHTML = createMarkup(countries));
 }
 
 function createMarkup(countries) {
@@ -65,12 +69,11 @@ function createMarkup(countries) {
         return `<li>
       <img src="${flags.svg}" width="50px" height="30px"</img><span>${name.official}</span>
       </li>`;
-      } else {
-        return `<img src="${flags.svg}" width="50px" height="30px"</img><h1><b>${name.official}</b></h1>
+      }
+      return `<img src="${flags.svg}" width="50px" height="30px"</img><h1><b>${name.official}</b></h1>
         <p><b>Capital</b>: ${capital}</p>
         <p><b>Population</b>: ${population}</p>
         <p><b>Language</b>: ${languageList}</p>`;
-      }
     })
     .join('');
 }
