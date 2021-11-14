@@ -30,7 +30,16 @@ function runSearch() {
   }
 
   fetchCountries(searchText, filteredParameters.join())
-    .then(countries => addSearchResultMarkup(countries))
+    .then(countries => {
+      if (countries.length > 10) {
+        clearUi();
+        return Notiflix.Notify.info(
+          'Too many matches found. Please enter a more specific name.',
+        );
+      } else {
+        return addSearchResultMarkup(countries);
+      }
+    })
     .catch(() => {
       clearUi();
       Notiflix.Notify.failure('Oops, there is no country with that name');
@@ -43,44 +52,25 @@ function clearUi() {
 }
 
 function addSearchResultMarkup(countries) {
-  if (countries.length > 10) {
-    clearUi();
-    return Notiflix.Notify.info(
-      'Too many matches found. Please enter a more specific name.',
-    );
-  }
-
-  if (countries.length > 1) {
-    clearUi();
-    return (countryList.innerHTML = createCountryListMarkup(countries));
-  } else {
-    clearUi();
-    return (countryInfo.innerHTML = createCountryInfoMarkup(countries));
-  }
+  return (countryList.innerHTML = createMarkup(countries));
 }
 
-function createCountryListMarkup(countries) {
-  return countries
-    .map(country => {
-      const { flags, name } = country;
-
-      return `<li>
-      <img src="${flags.svg}" width="50px" height="30px"</img><span>${name.official}</span>
-      </li>`;
-    })
-    .join('');
-}
-
-function createCountryInfoMarkup(countries) {
+function createMarkup(countries) {
   return countries
     .map(country => {
       const { languages, flags, name, capital, population } = country;
       const languageList = Object.values(languages).join(', ');
 
-      return `<img src="${flags.svg}" width="50px" height="30px"</img><h1><b>${name.official}</b></h1>
+      if (countries.length > 1) {
+        return `<li>
+      <img src="${flags.svg}" width="50px" height="30px"</img><span>${name.official}</span>
+      </li>`;
+      } else {
+        return `<img src="${flags.svg}" width="50px" height="30px"</img><h1><b>${name.official}</b></h1>
         <p><b>Capital</b>: ${capital}</p>
         <p><b>Population</b>: ${population}</p>
         <p><b>Language</b>: ${languageList}</p>`;
+      }
     })
     .join('');
 }
